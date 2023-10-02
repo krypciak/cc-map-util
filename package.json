@@ -2,7 +2,7 @@
     "name": "cc-map-util",
     "version": "1.0.0",
     "description": "Typescript utility library for CrossCode maps",
-    "main": "main.js",
+    "main": "index.ts",
     "scripts": {
         "start": "esbuild --target=es2018 --format=esm --platform=node --bundle --sourcemap=inline --outfile=plugin.js src/plugin.ts",
         "watch": "esbuild --target=es2018 --format=esm --platform=node --bundle --sourcemap=inline --watch --outfile=plugin.js src/plugin.ts",
