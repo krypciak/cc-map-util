@@ -81,9 +81,15 @@ export class DirUtil {
     static forEachUniqueDir4(action: ((d1: Dir, d2: Dir, d3: Dir, d4: Dir) => void)) { unique4.forEach(e => action(...e)) }
 }
 
+export namespace PosDir {
+    export function of<T extends Point>(p: T, dir: Dir): PosDir<T> { return Object.assign(p, { dir }) }
+}
 export type PosDir<T extends Point> =  T & { dir: Dir }
-export type PosDir3d<T extends Point> = T & { dir: Dir3d }
 
+export namespace PosLevel {
+    export function of<T extends Point>(p: T, level: number): PosLevel<T> { return Object.assign(p, { level }) }
+}
+export type PosLevel<T extends Point> =  T & { level: Dir }
 /*
 export function setToClosestSelSide(pos: Vec2, sel: Selection): { distance: number, dir: Dir, pos: Vec2 } {
     let minObj: { distance: number, dir: Dir, pos: Vec2 } = { distance: 10000, dir: 0, pos: new Point(0, 0) }
