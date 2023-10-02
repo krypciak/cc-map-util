@@ -2,11 +2,12 @@
     "name": "cc-map-util",
     "version": "1.0.0",
     "description": "Typescript utility library for CrossCode maps",
-    "main": "index.ts",
+    "main": "lib/index.ts",
+    "types": "lib/index.d.ts",
     "scripts": {
-        "start": "esbuild --target=es2018 --format=esm --platform=node --bundle --sourcemap=inline --outfile=plugin.js src/plugin.ts",
-        "watch": "esbuild --target=es2018 --format=esm --platform=node --bundle --sourcemap=inline --watch --outfile=plugin.js src/plugin.ts",
-        "build": "esbuild --target=es2018 --format=esm --platform=node --bundle --outfile='plugin.js' 'src/plugin.ts'"
+        "start": "tsc",
+        "watch": "tsc --watch",
+        "test": "jest"
     },
     "repository": {
         "type": "git",
@@ -22,11 +23,14 @@
     },
     "homepage": "https://github.com/krypciak/cc-map-util",
     "devDependencies": {
-         "@types/node": "^20.4.4",
-         "@typescript-eslint/eslint-plugin": "^6.2.0",
-         "@typescript-eslint/parser": "^6.2.0",
-         "esbuild": "^0.18.15",
-         "typescript": "^5.2.2",
-         "ultimate-crosscode-typedefs": "github:krypciak/ultimate-crosscode-typedefs"
+        "@types/jest": "^29.5.5",
+        "@types/node": "^20.4.4",
+        "@typescript-eslint/eslint-plugin": "^6.2.0",
+        "@typescript-eslint/parser": "^6.2.0",
+        "esbuild": "^0.18.15",
+        "jest": "^29.7.0",
+        "ts-jest": "^29.1.1",
+        "typescript": "^5.2.2",
+        "ultimate-crosscode-typedefs": "github:krypciak/ultimate-crosscode-typedefs"
     }
 }
