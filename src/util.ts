@@ -12,7 +12,7 @@ export class Stack<T> {
         return this.array.splice(this.array.length - 1, 1)[0]
     }
     peek(): T {
-        return this.array.last()
+        return this.array[this.array.length - 1]
     }
     shift(): T | undefined {
         return this.array.shift()

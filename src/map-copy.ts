@@ -1,32 +1,40 @@
+import { bareRect } from './rect'
+
 const tilesize: number = 16
 
-interface CopyArea {
+export interface CopyArea {
     bb: bareRect[]
     masterZ: number
 }
 
-interface LevelEntry {
+export interface LevelEntry {
     height: number
 }
 
-function mergeMapLevels(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, cpa: CopyArea):
+export function mergeMapLevels(baseMapLevels: LevelEntry[], selMapLevels: LevelEntry[], selMasterZ: number):
     { levels: LevelEntry[], levelOffset: number, lvlChangeMap: number[], masterLevel: number } {
-    const selLevels: LevelEntry[] = baseMap.levels.map(obj => ({ height: obj.height - cpa.masterZ }))
+    const selLevels: LevelEntry[] = selMapLevels.map(obj => ({ height: obj.height - selMasterZ }))
 
     const levelsCopy: LevelEntry[] = []
-    baseMap.levels.forEach((level) => { levelsCopy.push(level.height) })
-    selLevels.forEach((level) => { levelsCopy.push(level.height) })
-    const levelOffset = baseLevels.length
+    levelsCopy.push(...baseMapLevels)
+    levelsCopy.push(...selLevels)
+    const levelOffset = baseMapLevels.length
 
     /* sort levels and remove duplicates */
-    const levels = [...levelsCopy].sort((a, b) => a - b).filter((e, i, a) => e.height !== a[i - 1]?.height)
+    const levels = [...levelsCopy].sort((a, b) => a.height - b.height).filter((e, i, a) => e.height !== a[i - 1]?.height)
 
     const lvlChangeMap: number[] = []
     for (let i = 0; i < levelsCopy.length; i++) {
-	lvlChangeMap[i] = levels.findIndex(l => l.height == levelsCopy[i])
-        // lvlChangeMap[i] = levels.indexOf(levelsCopy[i])
+	    lvlChangeMap[i] = levels.findIndex(l => l.height == levelsCopy[i].height)
     }
-    const masterLevel = levels.indexOf(0)
+    const masterLevel = levels.findIndex(l => l.height == 0)
     
     return { levels, levelOffset, lvlChangeMap, masterLevel, }
+}
+
+export function getOffsetEntityPos(rect: bareRect, entityPos: Vec2, offset: Vec2, selSizeRect: { width: number; height: number }, selMasterZ?: number): Vec2 {
+    return {
+        x: Math.floor(offset.x/tilesize)*16 - Math.floor(rect.x/tilesize)*16 + entityPos.x + rect.x - selSizeRect.width,
+        y: Math.floor(offset.y/tilesize)*16 - Math.floor(rect.y/tilesize)*16 + entityPos.y + rect.y - selSizeRect.height - (selMasterZ ?? 0),
+    }
 }

@@ -3,9 +3,7 @@
     "src",
     "node_modules/ultimate-crosscode-typedefs/crosscode-ccloader-all.d.ts",
   ],
-  "exclude": [
-    "**/test/*"
-  ],
+  "exclude": [],
   "compilerOptions": {
     /* Visit https://aka.ms/tsconfig to read more about this file */
 

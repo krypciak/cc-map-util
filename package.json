@@ -7,12 +7,10 @@
     "scripts": {
         "start": "tsc",
         "watch": "tsc --watch",
-        "test": "jest"
+        "test": "npx mocha --reporter spec **/*.test.js",
+        "testwatch": "npx mocha --reporter spec **/*.test.js --watch"
     },
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/krypciak/cc-map-util.git"
-    },
+    "repository": "git+https://github.com/krypciak/cc-map-util.git",
     "keywords": [
         "crosscode"
     ],
@@ -23,14 +21,16 @@
     },
     "homepage": "https://github.com/krypciak/cc-map-util",
     "devDependencies": {
-        "@types/jest": "^29.5.5",
-        "@types/node": "^20.4.4",
+        "@types/chai": "^4.3.6",
+        "@types/mocha": "^10.0.2",
         "@typescript-eslint/eslint-plugin": "^6.2.0",
         "@typescript-eslint/parser": "^6.2.0",
+        "chai": "^4.3.10",
         "esbuild": "^0.18.15",
-        "jest": "^29.7.0",
-        "ts-jest": "^29.1.1",
+        "mocha": "^10.2.0",
+        "ts-node": "^10.9.1",
         "typescript": "^5.2.2",
         "ultimate-crosscode-typedefs": "github:krypciak/ultimate-crosscode-typedefs"
-    }
+    },
+    "private": null
 }
