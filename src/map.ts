@@ -1,3 +1,5 @@
+import { emptyArr2d } from "./rect"
+
 const tilesize: number = 16
 
 export enum Coll {
@@ -10,7 +12,6 @@ export type Tileset = 'media/map/collisiontiles-16x16.png' | 'media/map/pathmap-
                     | 'media/map/dungeon-shadow.png' | 'media/map/cold-dng.png' | 'media/map/rhombus-dungeon2.png'
 
 export class MapLayer implements sc.MapModel.MapLayer {
-    id: number
     visible: number = 1
     repeat: boolean = false
     distance: number = 1
@@ -22,25 +23,20 @@ export class MapLayer implements sc.MapModel.MapLayer {
 
     constructor(public width: number, public height: number, public name: string,
         public type: sc.MapModel.MapLayerType, public tilesetName: string, 
-        public level: sc.MapModel.MapLayerLevelType, data?: number[][]) {
+        public level: sc.MapModel.MapLayerLevelType, public id: number, data?: number[][]) {
 
         this.data = data ?? []
-        this.id = 0
     }
 
-    fill(tile: number) {
-        for (let y = 0; y < this.height; y++) {
-            this.data[y] = []
-            for (let x = 0; x < this.width; x++) {
-                this.data[y][x] = tile
-            }
-        }
+    fill(tile: number): this {
+        this.data = emptyArr2d({ x: this.width, y: this.height }, tile)
+        return this
     }
 
     toJSON() { return this as sc.MapModel.MapLayer }
 
     static convertArray(arr: sc.MapModel.MapLayer[]): MapLayer[] {
-        return arr.map((layer) => new MapLayer(layer.width, layer.height, layer.name, layer.type, layer.tilesetName, layer.level, layer.data))
+        return arr.map((layer) => new MapLayer(layer.width, layer.height, layer.name, layer.type, layer.tilesetName, layer.level, layer.id, layer.data))
     }
 }
 

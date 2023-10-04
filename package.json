@@ -7,8 +7,6 @@
     "scripts": {
         "start": "tsc",
         "watch": "tsc --watch",
-        "test": "npx mocha --reporter spec **/*.test.js",
-        "testwatch": "npx mocha --reporter spec **/*.test.js --watch"
     },
     "repository": "git+https://github.com/krypciak/cc-map-util.git",
     "keywords": [

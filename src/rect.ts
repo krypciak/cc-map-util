@@ -268,3 +268,83 @@ export function reduceRectArr(rects: bareRect[]) {
         rectSize: MapRect.fromTwoPoints(min as MapPoint, max as MapPoint)
     }
 }
+
+
+export function fillFromToArr2d<T>(arr: T[][], value: T, x1: number, y1: number, x2: number, y2: number) {
+    const iteX = Math.min(x2, arr[0].length)
+    const iteY = Math.min(y2, arr.length)
+
+    for (let y = y1; y < iteY; y++) {
+        for (let x = x1; x < iteX; x++) {
+            arr[y][x] = value
+        }
+    }
+}
+export function createSubArr2d(arr: any[][], x1: number, y1: number, x2: number, y2: number, offsetX: number, offsetY: number, size: Vec2) {
+    const nArr = emptyArr2d(size)
+
+    const arrWidth = arr[0].length
+    const arrHeight = arr.length
+    // make sure cords are within 0 - width or height of arr
+    x2 = Math.min(arrWidth, x2)
+    y2 = Math.min(arrHeight, y2)
+
+    // make sure cords are in bounds with baseMap
+    let xTmp = (x2 - x1 + 1) - (size.x - offsetX)
+    if (xTmp > 0) {
+        x2 -= xTmp
+    }
+    let yTmp = (y2 - y1 + 1) - (size.y - offsetY)
+    if (yTmp > 0) {
+        y2 -= yTmp
+    }
+
+    x1 = Math.min(arrWidth, Math.max(x1, 0))
+    y1 = Math.min(arrHeight, Math.max(y1, 0))
+    x2 = Math.min(arrWidth, Math.max(x2, 0))
+    y2 = Math.min(arrHeight, Math.max(y2, 0))
+    
+    if (x2 < x1 || y2 < y1)
+        throw new Error('invalid createSubArray inputs')
+    
+    for (let y = y1; y < y2; y++) {
+        for (let x = x1; x < x2; x++) {
+            let nArrX = x - x1 + offsetX
+            let nArrY = y - y1 + offsetY
+            nArr[nArrY][nArrX] = arr[y][x]
+        }
+    }
+    return nArr
+}
+export function mergeArrays2d<T>(arr1: T[][], arr2: T[][]) {
+    for (let y = 0; y < Math.min(arr1.length, arr2.length); y++) {
+        for (let x = 0; x < Math.min(arr1[y].length, arr2[0].length); x++) {
+            let val = arr2[y][x]
+            if (val != 0) {
+                arr1[y][x] = val
+            }
+        }
+    }
+}
+
+export function parseArrAt2d<T>(arr1: T[][], arr2: T[][], x1: number, y1: number) {
+    for (let y = y1; y < y1 + arr2.length; y++) {
+        for (let x = x1; x < x1 + arr2[y - y1].length; x++) {
+            arr1[y][x] = arr2[y - y1][x - x1]
+        }
+    }
+}
+export function isArrEmpty2d<T>(arr: T[][]) {
+    for (let y = 0; y < arr.length; y++) {
+        for (let x = 0; x < arr[y].length; x++) {
+            if (arr[y][x] != 0)
+                return false
+        }
+    }
+    return true
+}
+
+
+export function generateUniqueId() {
+    return Math.floor(Math.random() * 10000000)
+}

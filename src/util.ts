@@ -33,3 +33,14 @@ export function assertBool(arg: boolean, msg: string = ''): asserts arg {
         throw new Error(`Assertion failed: ${msg}`)
     }
 }
+
+export function executeRecursiveAction(obj: any, action: (key: any, obj: any, args: any) => void, args: any) {
+    for (const key in obj) {
+        if (typeof obj[key] === 'object') {
+            action(key, obj, args)
+            executeRecursiveAction(obj[key], action, args)
+        } else {
+            action(key, obj, args)
+        }
+    }
+}
