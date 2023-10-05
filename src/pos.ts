@@ -1,4 +1,4 @@
-import { AreaRect, EntityRect, MapRect } from './rect'
+import { AreaRect } from './rect'
 
 const tilesize: number = 16
 
@@ -152,7 +152,7 @@ export class Point {
 }
 
 export class EntityPoint extends Point {
-    static multiplier: number = EntityRect.multiplier
+    static multiplier: number = 64
     _entityPoint: boolean = true /* set so you cant assign different types to each other */
 
     copy(): EntityPoint {
@@ -169,7 +169,7 @@ export class EntityPoint extends Point {
 }
 
 export class MapPoint extends Point {
-    static multiplier: number = MapRect.multiplier
+    static multiplier: number = 4
     _mapPoint: boolean = true /* set so you cant assign different types to each other */
 
     copy(): MapPoint {
@@ -182,7 +182,7 @@ export class MapPoint extends Point {
 }
 
 export class AreaPoint extends Point {
-    static multiplier: number = AreaRect.multiplier
+    static multiplier: number = 1
     _areaPoint: boolean = true /* set so you cant assign different types to each other */
 
     copy(): AreaPoint {
