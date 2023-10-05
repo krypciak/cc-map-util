@@ -6,7 +6,7 @@
     "types": "lib/index.d.ts",
     "scripts": {
         "start": "tsc",
-        "watch": "tsc --watch",
+        "watch": "tsc --watch"
     },
     "repository": "git+https://github.com/krypciak/cc-map-util.git",
     "keywords": [
