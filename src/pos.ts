@@ -153,6 +153,10 @@ export class Point {
         vec.x = Math.ceil(vec.x)
         vec.y = Math.ceil(vec.y)
     }
+    static round(vec: Vec2) {
+        vec.x = Math.round(vec.x)
+        vec.y = Math.round(vec.y)
+    }
 }
 
 export class EntityPoint extends Point {
