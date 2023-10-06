@@ -215,8 +215,8 @@ export function reduceRectArr(rects: bareRect[]) {
     for (let rect of rects) {
         const pos: Vec2 = Vec2.create(rect)
         Vec2.sub(pos, min)
-        for (let y = pos.y; y < rect.height; y++) {
-            for (let x = pos.x; x < rect.width; x++) {
+        for (let y = pos.y; y < rect.height + pos.y; y++) {
+            for (let x = pos.x; x < rect.width + pos.x; x++) {
                 map[y][x] = 1
             }
         }
@@ -258,7 +258,7 @@ export function reduceRectArr(rects: bareRect[]) {
                     }
                 }
 
-                newRects.push(new MapRect(min.x + x, min.y + y, max.x - x, max.y - y))
+                newRects.push(new MapRect(min.x + x, min.y + y, maxX - x, maxY - y))
             }
         }
     }

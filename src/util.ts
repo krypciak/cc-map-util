@@ -34,13 +34,14 @@ export function assertBool(arg: boolean, msg: string = ''): asserts arg {
     }
 }
 
-export function executeRecursiveAction(obj: any, action: (key: any, obj: any, args: any) => void, args: any) {
+export function executeRecursiveAction(obj: any, action: (key: any, obj: any, args: any, path: string) => void, args: any, path: string) {
     for (const key in obj) {
+        const newPath: string = `${path}['${key}']`
         if (typeof obj[key] === 'object') {
-            action(key, obj, args)
-            executeRecursiveAction(obj[key], action, args)
+            action(key, obj, args, newPath)
+            executeRecursiveAction(obj[key], action, args, newPath)
         } else {
-            action(key, obj, args)
+            action(key, obj, args, newPath)
         }
     }
 }
