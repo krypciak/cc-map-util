@@ -149,6 +149,10 @@ export class Point {
         vec.x = Math.floor(vec.x)
         vec.y = Math.floor(vec.y)
     }
+    static ceil(vec: Vec2) {
+        vec.x = Math.ceil(vec.x)
+        vec.y = Math.ceil(vec.y)
+    }
 }
 
 export class EntityPoint extends Point {
