@@ -1,4 +1,4 @@
-import { AreaRect } from './rect'
+import { AreaRect, } from './rect'
 
 const tilesize: number = 16
 
@@ -92,20 +92,6 @@ export namespace PosLevel {
     export function of<T extends Point>(p: T, level: number): PosLevel<T> { return Object.assign(p, { level }) }
 }
 export type PosLevel<T extends Point> =  T & { level: Dir }
-/*
-export function setToClosestSelSide(pos: Vec2, sel: Selection): { distance: number, dir: Dir, pos: Vec2 } {
-    let minObj: { distance: number, dir: Dir, pos: Vec2 } = { distance: 10000, dir: 0, pos: new Point(0, 0) }
-    for (let rect of sel.bb) {
-        const obj = Rect.new(EntityRect, rect).setToClosestRectSide({ x: pos.x, y: pos.y })
-        if (obj.distance < minObj.distance) {
-            minObj = obj
-        }
-    }
-    pos.x = minObj.pos.x
-    pos.y = minObj.pos.y
-    return minObj
-}
-*/
 
 export class Point {
     static multiplier: number

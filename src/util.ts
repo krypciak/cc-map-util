@@ -45,3 +45,7 @@ export function executeRecursiveAction(obj: any, action: (key: any, obj: any, ar
         }
     }
 }
+
+export function generateUniqueId() {
+    return Math.floor(Math.random()*1000000).toString()
+}
