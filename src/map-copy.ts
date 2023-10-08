@@ -1,5 +1,6 @@
+import { EntityPoint, MapPoint } from 'cc-map-util/src/pos'
 import { MapLayer } from './map'
-import { bareRect, fillFromToArr2d, isVecInRect, createSubArr2d, mergeArrays2d, isArrEmpty2d, generateUniqueId } from './rect'
+import { bareRect, fillFromToArr2d, isVecInRect, createSubArr2d, mergeArrays2d, isArrEmpty2d, generateUniqueId, MapRect, Rect, EntityRect } from './rect'
 import { assertBool, executeRecursiveAction } from './util'
 import { VarExtractor } from './varcondition'
 
@@ -8,13 +9,13 @@ interface LevelEntry {
     height: number
 }
 
-function mergeMapLevels(baseMapLevels: LevelEntry[], selMapLevels: LevelEntry[], selMasterZ: number):
-    { levels: LevelEntry[], levelOffset: number, lvlChangeMap: number[], masterLevel: number } {
+function mergeMapLevels(baseMapLevels: LevelEntry[], baseMasterLevel: number, selMapLevels: LevelEntry[], selMasterZ: number):
+    { levels: LevelEntry[], levelOffset: number, lvlChangeMap: number[], masterLevel: number, selMasterZ: number } {
+
+    selMasterZ = selMasterZ - baseMapLevels[baseMasterLevel].height
     const selLevels: LevelEntry[] = selMapLevels.map(obj => ({ height: obj.height - selMasterZ }))
 
-    const levelsCopy: LevelEntry[] = []
-    levelsCopy.push(...baseMapLevels)
-    levelsCopy.push(...selLevels)
+    const levelsCopy: LevelEntry[] = [ ...baseMapLevels, ...selLevels ]
     const levelOffset = baseMapLevels.length
 
     /* sort levels and remove duplicates */
@@ -26,21 +27,21 @@ function mergeMapLevels(baseMapLevels: LevelEntry[], selMapLevels: LevelEntry[],
     }
     const masterLevel = levels.findIndex(l => l.height == 0)
     
-    return { levels, levelOffset, lvlChangeMap, masterLevel, }
+    return { levels, levelOffset, lvlChangeMap, masterLevel, selMasterZ }
 }
 
-export function getOffsetEntityPos(rect: bareRect, entityPos: Vec2, offset: Vec2, selSizeRect: Vec2, selMasterZ?: number): Vec2 {
-    return {
-        x: Math.floor(offset.x/tilesize)*16 - Math.floor(rect.x/tilesize)*16 + entityPos.x + rect.x - selSizeRect.x,
-        y: Math.floor(offset.y/tilesize)*16 - Math.floor(rect.y/tilesize)*16 + entityPos.y + rect.y - selSizeRect.y - (selMasterZ ?? 0),
-    }
+export function getOffsetEntityPos(rect: EntityRect, entityPos: EntityPoint, offset: EntityPoint, selSizeRect: EntityPoint, selMasterZ?: number): EntityPoint {
+    return new EntityPoint(
+        Math.floor(offset.x/tilesize)*16 - Math.floor(rect.x/tilesize)*16 + entityPos.x + rect.x - selSizeRect.x,
+        Math.floor(offset.y/tilesize)*16 - Math.floor(rect.y/tilesize)*16 + entityPos.y + rect.y - selSizeRect.y - (selMasterZ ?? 0),
+    )
 }
 
 export interface EntityRecArgsIn {
     uniqueId?: number
-    offset: Vec2
+    offset: MapPoint
     selMasterZ: number
-    selSizeRect: Vec2
+    selSizeRect: MapPoint
     filters: ((key: any, obj: any, args: EntityRecArgs) => void)[]
     selectAllEventTriggers: boolean
 }
@@ -48,7 +49,11 @@ export interface EntityRecArgs extends EntityRecArgsIn {
     lvlChangeMap: number[]
     isSel: boolean
     levelOffset: number
-    repositionRect: bareRect
+    eoffset: EntityPoint
+    selSizeERect: EntityPoint
+    
+    repositionRect: MapRect
+    repositionERect: EntityRect
 }
 function changeEntityRecursive(key: any, obj: any, eargs: EntityRecArgs) {
     let val = obj[key]
@@ -103,7 +108,7 @@ function changeEntityRecursive(key: any, obj: any, eargs: EntityRecArgs) {
             case 'newPos': {
                 if (key == 'position' && obj.duration) { return }
                 if ('x' in val && 'y' in val) {
-                    let { x, y } = getOffsetEntityPos(eargs.repositionRect, obj[key], eargs.offset, eargs.selSizeRect, eargs.selMasterZ)
+                    let { x, y } = getOffsetEntityPos(eargs.repositionERect, obj[key], eargs.eoffset, eargs.selSizeERect, eargs.selMasterZ)
                     obj[key].x = x
                     obj[key].y = y
                 }
@@ -116,7 +121,7 @@ function changeEntityRecursive(key: any, obj: any, eargs: EntityRecArgs) {
                 return
             }
             case 'targetPoint': {
-                let { x, y } = getOffsetEntityPos(eargs.repositionRect, obj[key], eargs.offset, eargs.selSizeRect, eargs.selMasterZ)
+                let { x, y } = getOffsetEntityPos(eargs.repositionERect, obj[key], eargs.eoffset, eargs.selSizeERect, eargs.selMasterZ)
                 obj.targetPoint.x = x
                 obj.targetPoint.y = y
                 
@@ -128,15 +133,16 @@ function changeEntityRecursive(key: any, obj: any, eargs: EntityRecArgs) {
 }
 
 function mergeMapEntities(entities: sc.MapModel.MapEntity[],
-    selEntities: sc.MapModel.MapEntity[], rects: bareRect[], eargs: Omit<EntityRecArgs, 'isSel'>) {
+    selEntities: sc.MapModel.MapEntity[], rects: MapRect[], eargs: Omit<EntityRecArgs, 'isSel'>) {
     
     if (! entities && ! selEntities) { return [] }
 
     let entityMapId: number = 0
 
     entities.forEach((entity) => {
-        const eargs1: EntityRecArgs = { ...eargs } as EntityRecArgs
+        const eargs1: Partial<EntityRecArgs> = { ...eargs } as EntityRecArgs
         eargs1.isSel = false
+        eargs1.selMasterZ = undefined
         executeRecursiveAction(entity, changeEntityRecursive, eargs1)
         entityMapId = Math.max(entityMapId, entity.settings?.mapId ?? -1)
     })
@@ -146,22 +152,23 @@ function mergeMapEntities(entities: sc.MapModel.MapEntity[],
     let eventTriggerOffsetY: number = 0
         for (const entity of selEntities) {
             if (entity.type == 'EventTrigger') {
-                Vec2.assign(entity, eargs.offset)
+                Vec2.assign(entity, eargs.selSizeERect)
                 entity.y += eventTriggerOffsetY
                 eventTriggerOffsetY += 16
             }
         }
     }
+
     for (const rect of rects) {
+        const erect: EntityRect = rect.to(EntityRect)
         for (const e of selEntities) {
-            if (eargs.selectAllEventTriggers && e.type == 'EventTrigger') { continue }
-            const pos: Vec2 = Vec2.create(e)
-            Vec2.sub(pos, rect)
-            if (isVecInRect(pos, rect)) {
-                let eoffset: Vec2 = getOffsetEntityPos(rect, e, eargs.offset, eargs.selSizeRect, eargs.selMasterZ)
+            const pos: EntityPoint = EntityPoint.fromVec(e)
+            if (isVecInRect(pos, erect)) {
+                const eoffset: EntityPoint = getOffsetEntityPos(erect, pos, eargs.eoffset, eargs.selSizeERect, eargs.selMasterZ)
                 const eargs1: EntityRecArgs = { ...eargs } as EntityRecArgs
                 eargs1.isSel = true
                 eargs1.repositionRect = rect
+                eargs1.repositionERect = rect.to(EntityRect)
                 executeRecursiveAction(e, changeEntityRecursive, eargs1)
 
                 Vec2.assign(e, eoffset)
@@ -259,7 +266,7 @@ function processCollisionLayers(map: sc.MapModel.Map) {
     } */
 }
 
-function getMapLayerCords(rect: bareRect, offset: Vec2, selSize: Vec2) {
+function getMapLayerCords(rect: MapRect, offset: MapPoint, selSize: MapPoint) {
    const x1 = rect.x
    const y1 = rect.y
    const x2 = x1 + rect.width
@@ -271,7 +278,7 @@ function getMapLayerCords(rect: bareRect, offset: Vec2, selSize: Vec2) {
    return { x1, y1, x2, y2, x3, y3, x4, y4 }
 }
 
-function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects: bareRect[], eargs: Omit<EntityRecArgs, 'isSel'>, levelsLen: number) {
+function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects: MapRect[], eargs: Omit<EntityRecArgs, 'isSel'>, levelsLen: number) {
 
     const size: Vec2 = { x: baseMap.mapWidth, y: baseMap.mapHeight }
 
@@ -354,7 +361,6 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
     const tileLayers: sc.MapModel.MapLayer[][] = []
     const tileLayersClear: boolean[] = []
     /* get base tile layers */
-    
     for (const layer of baseMap.layer as (sc.MapModel.MapLayer & { isBase?: boolean })[]) {
         if (layer.type != 'Background' || (typeof layer.level === 'string' && layer.level.startsWith('object'))) { continue }
         const level: number = eargs.lvlChangeMap[parseInt(layer.level.toString())]
@@ -387,7 +393,7 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
                 }
             }
             const subArray: number[][] = createSubArr2d(layer.data, x1, y1, x2, y2, x3, y3, size)
-            if (isArrEmpty2d(subArray)) {
+            if (!isArrEmpty2d(subArray)) {
                 if (rectLayer) {
                     mergeArrays2d(rectLayer.data, subArray)
                 } else {
@@ -492,16 +498,19 @@ export interface MapCopyOptions {
     makePuzzlesUnique?: boolean
 }
 
-export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects: bareRect[],
+export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects1: bareRect[],
     eargs1: EntityRecArgsIn, newName: string, options: MapCopyOptions): sc.MapModel.Map {
     if (! options.uniqueId) {
         options.uniqueId = generateUniqueId()
     }
 
     const eargs: EntityRecArgs = eargs1 as EntityRecArgs
-    const { levels, masterLevel, levelOffset, lvlChangeMap } = mergeMapLevels(baseMap.levels, selMap.levels, eargs.selMasterZ)
+    eargs.eoffset = eargs.offset.to(EntityPoint)
+    eargs.selSizeERect = eargs.selSizeRect.to(EntityPoint)
+    const { levels, masterLevel, levelOffset, lvlChangeMap, selMasterZ } = mergeMapLevels(baseMap.levels, baseMap.masterLevel, selMap.levels, eargs.selMasterZ)
     eargs.lvlChangeMap = lvlChangeMap
     eargs.levelOffset = levelOffset
+    eargs.selMasterZ = selMasterZ
 
     // if (options.uniqueSel) {
     //     let uniqueSel = options.uniqueSel
@@ -513,6 +522,7 @@ export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.
     //         poslvl.level = oldToNewLevelsMap[parseInt(poslvl.level) + selLevelOffset]
     //     }
     // }
+    const rects: MapRect[] = rects1.map(r => Rect.new(MapRect, r))
     const { lightLayer, collisionLayers, tileLayers, objectLayers, navLayers, size } = mergeMapLayers(baseMap, selMap, rects, eargs, levels.length)
     
     let entities: sc.MapModel.MapEntity[] = []
