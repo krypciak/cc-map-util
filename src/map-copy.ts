@@ -29,24 +29,26 @@ function mergeMapLevels(baseMapLevels: LevelEntry[], selMapLevels: LevelEntry[],
     return { levels, levelOffset, lvlChangeMap, masterLevel, }
 }
 
-function getOffsetEntityPos(rect: bareRect, entityPos: Vec2, offset: Vec2, selSizeRect: Vec2, selMasterZ?: number): Vec2 {
+export function getOffsetEntityPos(rect: bareRect, entityPos: Vec2, offset: Vec2, selSizeRect: Vec2, selMasterZ?: number): Vec2 {
     return {
         x: Math.floor(offset.x/tilesize)*16 - Math.floor(rect.x/tilesize)*16 + entityPos.x + rect.x - selSizeRect.x,
         y: Math.floor(offset.y/tilesize)*16 - Math.floor(rect.y/tilesize)*16 + entityPos.y + rect.y - selSizeRect.y - (selMasterZ ?? 0),
     }
 }
 
-interface EntityRecArgs {
-    lvlChangeMap: number[]
-    isSel: boolean
-    levelOffset: number
+export interface EntityRecArgsIn {
     uniqueId?: number
     offset: Vec2
     selMasterZ: number
     selSizeRect: Vec2
-    repositionRect: bareRect
     filters: ((key: any, obj: any, args: EntityRecArgs) => void)[]
     selectAllEventTriggers: boolean
+}
+export interface EntityRecArgs extends EntityRecArgsIn {
+    lvlChangeMap: number[]
+    isSel: boolean
+    levelOffset: number
+    repositionRect: bareRect
 }
 function changeEntityRecursive(key: any, obj: any, eargs: EntityRecArgs) {
     let val = obj[key]
@@ -481,15 +483,17 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
         size,
     }
 }
-interface MapCopyOptions {
+
+export interface MapCopyOptions {
     uniqueId?: number
     uniqueSel?: Selection
     disableEntities?: boolean
     // removeCutscenes?: boolean
     makePuzzlesUnique?: boolean
 }
+
 export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects: bareRect[],
-    eargs1: Omit<Omit<Omit<EntityRecArgs, 'isSel'>, 'lvlChangeMap'>, 'levelOffset'>, newName: string, options: MapCopyOptions) {
+    eargs1: EntityRecArgsIn, newName: string, options: MapCopyOptions): sc.MapModel.Map {
     if (! options.uniqueId) {
         options.uniqueId = generateUniqueId()
     }
@@ -580,7 +584,7 @@ export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.
         allLayers.push(lightLayer)
     }
 
-    let map = {
+    const map: sc.MapModel.Map = {
         name: newName,
         levels,
         mapWidth: size.x,
