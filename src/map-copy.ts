@@ -5,8 +5,8 @@ import { assertBool, executeRecursiveAction } from './util'
 import { VarExtractor } from './varcondition'
 
 declare global {
-    namespace sc.MapModel {
-        interface MapEntity {
+    namespace ig.Entity {
+        interface Settings {
             oldPos?: Vec2
         }
     }
@@ -179,7 +179,8 @@ function mergeMapEntities(entities: sc.MapModel.MapEntity[],
                 eargs1.repositionERect = rect.to(EntityRect)
                 executeRecursiveAction(e, changeEntityRecursive, eargs1)
 
-                e.oldPos = Vec2.create(e) 
+                e.settings ??= {}
+                e.settings.oldPos = Vec2.create(e) 
                 Vec2.assign(e, eoffset)
                 if (e.settings && e.type != 'Destructible') {
                     e.settings.mapId = entityMapId++
