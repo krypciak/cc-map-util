@@ -67,7 +67,7 @@ export async function getMapDisplayName(map: sc.MapModel.Map): Promise<string> {
 
         for (const floor of area.data.floors) {
             for (const map of floor.maps) {
-                const displayName = map.name.en_US!
+                const displayName = ig.LangLabel.getText(map.name)
                 mapNameToMapDisplayName.set(map.path.split('.').join('/'), displayName)
             }
         }
