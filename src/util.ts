@@ -23,13 +23,13 @@ export class Stack<T> {
 }
 
 export function assert(arg: any, msg: string = ''): asserts arg {
-    if (arg != 0 && ! arg) {
+    if (arg != 0 && !arg) {
         throw new Error(`Assertion failed: ${msg}`)
     }
 }
 
 export function assertBool(arg: boolean, msg: string = ''): asserts arg {
-    if (! arg) {
+    if (!arg) {
         throw new Error(`Assertion failed: ${msg}`)
     }
 }
@@ -46,5 +46,5 @@ export function executeRecursiveAction(obj: any, action: (key: any, obj: any, ar
 }
 
 export function generateUniqueId() {
-    return Math.floor(Math.random()*1000000).toString()
+    return Math.floor(Math.random() * 1000000).toString()
 }

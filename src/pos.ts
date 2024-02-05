@@ -1,4 +1,4 @@
-import { AreaRect, } from './rect'
+import { AreaRect } from './rect'
 
 const tilesize: number = 16
 
@@ -19,29 +19,77 @@ export enum Dir3d {
 }
 
 const unique2: [Dir, Dir][] = [
-    [0, 1], [0, 2], [0, 3],
-    [1, 0], [1, 2], [1, 3],
-    [2, 0], [2, 1], [2, 3],
-    [3, 0], [3, 1], [3, 2],
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [1, 0],
+    [1, 2],
+    [1, 3],
+    [2, 0],
+    [2, 1],
+    [2, 3],
+    [3, 0],
+    [3, 1],
+    [3, 2],
 ]
 const unique3: [Dir, Dir, Dir][] = [
-    [0, 1, 2], [0, 1, 3], [0, 2, 1], [0, 2, 3], [0, 3, 1], [0, 3, 2],
-    [1, 0, 2], [1, 0, 3], [1, 2, 0], [1, 2, 3], [1, 3, 0], [1, 3, 2],
-    [2, 0, 1], [2, 0, 3], [2, 1, 0], [2, 1, 3], [2, 3, 0], [2, 3, 1],
-    [3, 0, 1], [3, 0, 2], [3, 1, 0], [3, 1, 2], [3, 2, 0], [3, 2, 1],
+    [0, 1, 2],
+    [0, 1, 3],
+    [0, 2, 1],
+    [0, 2, 3],
+    [0, 3, 1],
+    [0, 3, 2],
+    [1, 0, 2],
+    [1, 0, 3],
+    [1, 2, 0],
+    [1, 2, 3],
+    [1, 3, 0],
+    [1, 3, 2],
+    [2, 0, 1],
+    [2, 0, 3],
+    [2, 1, 0],
+    [2, 1, 3],
+    [2, 3, 0],
+    [2, 3, 1],
+    [3, 0, 1],
+    [3, 0, 2],
+    [3, 1, 0],
+    [3, 1, 2],
+    [3, 2, 0],
+    [3, 2, 1],
 ]
 const unique4: [Dir, Dir, Dir, Dir][] = [
-    [0, 1, 2, 3], [0, 1, 3, 2], [0, 2, 1, 3], [0, 2, 3, 1], [0, 3, 1, 2], [0, 3, 2, 1],
-    [1, 0, 2, 3], [1, 0, 3, 2], [1, 2, 0, 3], [1, 2, 3, 0], [1, 3, 0, 2], [1, 3, 2, 0],
-    [2, 0, 1, 3], [2, 0, 3, 1], [2, 1, 0, 3], [2, 1, 3, 0], [2, 3, 0, 1], [2, 3, 1, 0],
-    [3, 0, 1, 2], [3, 0, 2, 1], [3, 1, 0, 2], [3, 1, 2, 0], [3, 2, 0, 1], [3, 2, 1, 0],
+    [0, 1, 2, 3],
+    [0, 1, 3, 2],
+    [0, 2, 1, 3],
+    [0, 2, 3, 1],
+    [0, 3, 1, 2],
+    [0, 3, 2, 1],
+    [1, 0, 2, 3],
+    [1, 0, 3, 2],
+    [1, 2, 0, 3],
+    [1, 2, 3, 0],
+    [1, 3, 0, 2],
+    [1, 3, 2, 0],
+    [2, 0, 1, 3],
+    [2, 0, 3, 1],
+    [2, 1, 0, 3],
+    [2, 1, 3, 0],
+    [2, 3, 0, 1],
+    [2, 3, 1, 0],
+    [3, 0, 1, 2],
+    [3, 0, 2, 1],
+    [3, 1, 0, 2],
+    [3, 1, 2, 0],
+    [3, 2, 0, 1],
+    [3, 2, 1, 0],
 ]
 
 export class DirUtil {
     static flip(dir: Dir): Dir {
         return ((dir + 2) % 4) as Dir
     }
-    
+
     static toRight(dir: Dir): Dir {
         return ((dir + 1) % 4) as Dir
     }
@@ -69,7 +117,9 @@ export class DirUtil {
     }
 
     static dir3dToDir(dir3d: Dir3d): Dir {
-        if (! DirUtil.dir3dIsDir(dir3d)) { throw new Error('Invalid dir3d to dir conversion') }
+        if (!DirUtil.dir3dIsDir(dir3d)) {
+            throw new Error('Invalid dir3d to dir conversion')
+        }
         return dir3d as unknown as Dir
     }
 
@@ -77,38 +127,51 @@ export class DirUtil {
         return dir3d != Dir3d.UP && dir3d != Dir3d.DOWN
     }
 
-    static forEachUniqueDir1(action: ((d1: Dir) => void)) { for (let dir: Dir = 0; dir < 4; dir++) { action(dir) } }
-    static forEachUniqueDir2(action: ((d1: Dir, d2: Dir) => void)) { unique2.forEach(e => action(...e)) }
-    static forEachUniqueDir3(action: ((d1: Dir, d2: Dir, d3: Dir) => void)) { unique3.forEach(e => action(...e)) }
-    static forEachUniqueDir4(action: ((d1: Dir, d2: Dir, d3: Dir, d4: Dir) => void)) { unique4.forEach(e => action(...e)) }
+    static forEachUniqueDir1(action: (d1: Dir) => void) {
+        for (let dir: Dir = 0; dir < 4; dir++) {
+            action(dir)
+        }
+    }
+    static forEachUniqueDir2(action: (d1: Dir, d2: Dir) => void) {
+        unique2.forEach(e => action(...e))
+    }
+    static forEachUniqueDir3(action: (d1: Dir, d2: Dir, d3: Dir) => void) {
+        unique3.forEach(e => action(...e))
+    }
+    static forEachUniqueDir4(action: (d1: Dir, d2: Dir, d3: Dir, d4: Dir) => void) {
+        unique4.forEach(e => action(...e))
+    }
 }
 
 export namespace PosDir {
-    export function of<T extends Point>(p: T, dir: Dir): PosDir<T> { return Object.assign(p, { dir }) }
+    export function of<T extends Point>(p: T, dir: Dir): PosDir<T> {
+        return Object.assign(p, { dir })
+    }
 }
-export type PosDir<T extends Point> =  T & { dir: Dir }
+export type PosDir<T extends Point> = T & { dir: Dir }
 
 export namespace PosLevel {
-    export function of<T extends Point>(p: T, level: number): PosLevel<T> { return Object.assign(p, { level }) }
+    export function of<T extends Point>(p: T, level: number): PosLevel<T> {
+        return Object.assign(p, { level })
+    }
 }
-export type PosLevel<T extends Point> =  T & { level: Dir }
+export type PosLevel<T extends Point> = T & { level: Dir }
 
 export class Point {
     static multiplier: number
 
     public constructor(
         public x: number,
-        public y: number) {}
+        public y: number
+    ) {}
 
     to<T extends typeof Point>(ins: T): InstanceType<T> {
-        const multi = ins.multiplier / 
+        const multi =
+            ins.multiplier /
             // @ts-expect-error
             this.constructor['multiplier']
 
-        return new ins(
-            this.x * multi,
-            this.y * multi,
-        ) as InstanceType<T>
+        return new ins(this.x * multi, this.y * multi) as InstanceType<T>
     }
 
     copy(): Point {
@@ -124,10 +187,18 @@ export class Point {
 
     static moveInDirection(pos: Vec2, dir: Dir, amount: number = 1) {
         switch (dir) {
-            case Dir.NORTH: pos.y -= amount; break
-            case Dir.EAST: pos.x += amount; break
-            case Dir.SOUTH: pos.y += amount; break
-            case Dir.WEST: pos.x -= amount; break
+            case Dir.NORTH:
+                pos.y -= amount
+                break
+            case Dir.EAST:
+                pos.x += amount
+                break
+            case Dir.SOUTH:
+                pos.y += amount
+                break
+            case Dir.WEST:
+                pos.x -= amount
+                break
         }
     }
 

@@ -6,7 +6,8 @@
     "types": "lib/index.d.ts",
     "scripts": {
         "start": "tsc",
-        "watch": "tsc --watch"
+        "watch": "tsc --watch",
+        "format": "prettier ./src -w"
     },
     "repository": "git+https://github.com/krypciak/cc-map-util.git",
     "keywords": [
@@ -19,16 +20,10 @@
     },
     "homepage": "https://github.com/krypciak/cc-map-util",
     "devDependencies": {
-        "@types/chai": "^4.3.6",
-        "@types/mocha": "^10.0.2",
-        "@typescript-eslint/eslint-plugin": "^6.2.0",
-        "@typescript-eslint/parser": "^6.2.0",
-        "chai": "^4.3.10",
-        "esbuild": "^0.18.15",
-        "mocha": "^10.2.0",
-        "ts-node": "^10.9.1",
-        "typescript": "^5.2.2",
+        "@typescript-eslint/eslint-plugin": "^6.20.0",
+        "@typescript-eslint/parser": "^6.20.0",
+        "esbuild": "^0.20.0",
+        "typescript": "^5.3.3",
         "ultimate-crosscode-typedefs": "github:krypciak/ultimate-crosscode-typedefs"
-    },
-    "private": null
+    }
 }

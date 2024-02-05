@@ -17,13 +17,16 @@ interface LevelEntry {
     height: number
 }
 
-function mergeMapLevels(baseMapLevels: LevelEntry[], baseMasterLevel: number, selMapLevels: LevelEntry[], selMasterZ: number):
-    { levels: LevelEntry[], levelOffset: number, lvlChangeMap: number[], masterLevel: number, selMasterZ: number } {
-
+function mergeMapLevels(
+    baseMapLevels: LevelEntry[],
+    baseMasterLevel: number,
+    selMapLevels: LevelEntry[],
+    selMasterZ: number
+): { levels: LevelEntry[]; levelOffset: number; lvlChangeMap: number[]; masterLevel: number; selMasterZ: number } {
     selMasterZ = selMasterZ - baseMapLevels[baseMasterLevel].height
     const selLevels: LevelEntry[] = selMapLevels.map(obj => ({ height: obj.height - selMasterZ }))
 
-    const levelsCopy: LevelEntry[] = [ ...baseMapLevels, ...selLevels ]
+    const levelsCopy: LevelEntry[] = [...baseMapLevels, ...selLevels]
     const levelOffset = baseMapLevels.length
 
     /* sort levels and remove duplicates */
@@ -31,17 +34,17 @@ function mergeMapLevels(baseMapLevels: LevelEntry[], baseMasterLevel: number, se
 
     const lvlChangeMap: number[] = []
     for (let i = 0; i < levelsCopy.length; i++) {
-	    lvlChangeMap[i] = levels.findIndex(l => l.height == levelsCopy[i].height)
+        lvlChangeMap[i] = levels.findIndex(l => l.height == levelsCopy[i].height)
     }
     const masterLevel = levels.findIndex(l => l.height == 0)
-    
+
     return { levels, levelOffset, lvlChangeMap, masterLevel, selMasterZ }
 }
 
 export function getOffsetEntityPos(rect: EntityRect, entityPos: EntityPoint, offset: EntityPoint, selSizeRect: EntityPoint, selMasterZ?: number): EntityPoint {
     return new EntityPoint(
-        Math.floor(offset.x/tilesize)*16 - Math.floor(rect.x/tilesize)*16 + entityPos.x + rect.x - selSizeRect.x,
-        Math.floor(offset.y/tilesize)*16 - Math.floor(rect.y/tilesize)*16 + entityPos.y + rect.y - selSizeRect.y - (selMasterZ ?? 0),
+        Math.floor(offset.x / tilesize) * 16 - Math.floor(rect.x / tilesize) * 16 + entityPos.x + rect.x - selSizeRect.x,
+        Math.floor(offset.y / tilesize) * 16 - Math.floor(rect.y / tilesize) * 16 + entityPos.y + rect.y - selSizeRect.y - (selMasterZ ?? 0)
     )
 }
 
@@ -59,7 +62,7 @@ export interface EntityRecArgs extends EntityRecArgsIn {
     levelOffset: number
     eoffset: EntityPoint
     selSizeERect: EntityPoint
-    
+
     repositionRect: MapRect
     repositionERect: EntityRect
 }
@@ -77,13 +80,20 @@ function changeEntityRecursive(key: any, obj: any, eargs: EntityRecArgs) {
 
     if (eargs.uniqueId) {
         switch (key) {
-            case 'condition':      case 'spawnCondition': case 'endCondition':
-            case 'startCondition': case 'hideCondition':  case 'pauseCondition':
+            case 'condition':
+            case 'spawnCondition':
+            case 'endCondition':
+            case 'startCondition':
+            case 'hideCondition':
+            case 'pauseCondition':
             case 'blockEventCondition': {
-                if (! val) { return }
+                if (!val) {
+                    return
+                }
                 if (typeof val === 'string') {
-                    if (val.trim().length == 0 ||
-                        val.includes('_destroyed')) { return }
+                    if (val.trim().length == 0 || val.includes('_destroyed')) {
+                        return
+                    }
                 }
                 const vars: string[] = VarExtractor.parse(val).vars
                 for (const varName of vars) {
@@ -93,13 +103,20 @@ function changeEntityRecursive(key: any, obj: any, eargs: EntityRecArgs) {
                 return
             }
 
-            case 'group':        case 'varName':       case 'preVariable':
-            case 'postVariable': case 'countVariable': case 'varIncrease':
+            case 'group':
+            case 'varName':
+            case 'preVariable':
+            case 'postVariable':
+            case 'countVariable':
+            case 'varIncrease':
             case 'variable': {
-                if (! val) { return }
+                if (!val) {
+                    return
+                }
                 if (typeof val === 'string') {
-                    if (val.trim().length == 0 ||
-                        val.includes('_destroyed')) { return }
+                    if (val.trim().length == 0 || val.includes('_destroyed')) {
+                        return
+                    }
                 }
                 obj[key] = val + '_' + eargs.uniqueId
                 return
@@ -114,7 +131,9 @@ function changeEntityRecursive(key: any, obj: any, eargs: EntityRecArgs) {
             case 'val':
             case 'target':
             case 'newPos': {
-                if (key == 'position' && obj.duration) { return }
+                if (key == 'position' && obj.duration) {
+                    return
+                }
                 if ('x' in val && 'y' in val) {
                     let { x, y } = getOffsetEntityPos(eargs.repositionERect, obj[key], eargs.eoffset, eargs.selSizeERect, eargs.selMasterZ)
                     obj[key].x = x
@@ -132,22 +151,24 @@ function changeEntityRecursive(key: any, obj: any, eargs: EntityRecArgs) {
                 let { x, y } = getOffsetEntityPos(eargs.repositionERect, obj[key], eargs.eoffset, eargs.selSizeERect, eargs.selMasterZ)
                 obj.targetPoint.x = x
                 obj.targetPoint.y = y
-                
+
                 return
             }
         }
     }
-    for (const filter of eargs.filters) { filter(key, obj, eargs) }
+    for (const filter of eargs.filters) {
+        filter(key, obj, eargs)
+    }
 }
 
-function mergeMapEntities(entities: sc.MapModel.MapEntity[],
-    selEntities: sc.MapModel.MapEntity[], rects: MapRect[], eargs: Omit<EntityRecArgs, 'isSel'>) {
-    
-    if (! entities && ! selEntities) { return [] }
+function mergeMapEntities(entities: sc.MapModel.MapEntity[], selEntities: sc.MapModel.MapEntity[], rects: MapRect[], eargs: Omit<EntityRecArgs, 'isSel'>) {
+    if (!entities && !selEntities) {
+        return []
+    }
 
     let entityMapId: number = 0
 
-    entities.forEach((entity) => {
+    entities.forEach(entity => {
         const eargs1: Partial<EntityRecArgs> = { ...eargs } as EntityRecArgs
         eargs1.isSel = false
         eargs1.selMasterZ = undefined
@@ -157,7 +178,7 @@ function mergeMapEntities(entities: sc.MapModel.MapEntity[],
 
     /* add all EventTriggers */
     if (eargs.selectAllEventTriggers) {
-    let eventTriggerOffsetY: number = 0
+        let eventTriggerOffsetY: number = 0
         for (const entity of selEntities) {
             if (entity.type == 'EventTrigger') {
                 Vec2.assign(entity, eargs.selSizeERect)
@@ -180,7 +201,7 @@ function mergeMapEntities(entities: sc.MapModel.MapEntity[],
                 executeRecursiveAction(e, changeEntityRecursive, eargs1)
 
                 e.settings ??= {}
-                e.settings.oldPos = Vec2.create(e) 
+                e.settings.oldPos = Vec2.create(e)
                 Vec2.assign(e, eoffset)
                 if (e.settings && e.type != 'Destructible') {
                     e.settings.mapId = entityMapId++
@@ -225,8 +246,12 @@ function stolenProcessCollisionLayer(layer: sc.MapModel.MapLayer, tmpLayer?: sc.
     }
 }
 function stolenPrepareSingleTile(d: number, c: number, e: number, f?: number, g?: number) {
-    function b(a: number) { return a < 4 ? a % 3 : (a - 12) >> 2 }
-    function a(a: number) { return a < 4 ? (a == 3 ? 0 : 1) : 2 + (a % 4) }
+    function b(a: number) {
+        return a < 4 ? a % 3 : (a - 12) >> 2
+    }
+    function a(a: number) {
+        return a < 4 ? (a == 3 ? 0 : 1) : 2 + (a % 4)
+    }
     c = d = e
     d = d % 32
     c = c - d
@@ -256,17 +281,19 @@ function processCollisionLayers(map: sc.MapModel.Map) {
     const height = map.mapHeight
 
     const collisionLayers: sc.MapModel.MapLayer[] = []
-    map.layer.filter(l => l.type == 'Collision').forEach(l => {
-        const lvl = parseInt(l.level.toString())
-        assertBool(collisionLayers[lvl] === undefined, 'A map cannot have two collision layers on the same level')
-        collisionLayers[lvl] = l
-    })
+    map.layer
+        .filter(l => l.type == 'Collision')
+        .forEach(l => {
+            const lvl = parseInt(l.level.toString())
+            assertBool(collisionLayers[lvl] === undefined, 'A map cannot have two collision layers on the same level')
+            collisionLayers[lvl] = l
+        })
     for (let i = 0; i < map.levels.length; i++) {
-        if (! collisionLayers[i]) {
+        if (!collisionLayers[i]) {
             collisionLayers[i] = new MapLayer(width, height, `Collision ${i}`, 'Collision', 'media/map/collisiontiles-16x16.png', i, -1)
         }
     }
-    
+
     stolenProcessCollisionLayers(collisionLayers, map.masterLevel, map.levels)
 
     /* for (let i = 0; i < map.layer.length; i++) {
@@ -277,19 +304,18 @@ function processCollisionLayers(map: sc.MapModel.Map) {
 }
 
 function getMapLayerCords(rect: MapRect, offset: MapPoint, selSize: MapPoint) {
-   const x1 = rect.x
-   const y1 = rect.y
-   const x2 = x1 + rect.width
-   const y2 = y1 + rect.height
-   const x3 = offset.x + rect.x - selSize.x
-   const y3 = offset.y + rect.y - selSize.y
-   const x4 = x3 + rect.width
-   const y4 = y3 + rect.height
-   return { x1, y1, x2, y2, x3, y3, x4, y4 }
+    const x1 = rect.x
+    const y1 = rect.y
+    const x2 = x1 + rect.width
+    const y2 = y1 + rect.height
+    const x3 = offset.x + rect.x - selSize.x
+    const y3 = offset.y + rect.y - selSize.y
+    const x4 = x3 + rect.width
+    const y4 = y3 + rect.height
+    return { x1, y1, x2, y2, x3, y3, x4, y4 }
 }
 
 function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects: MapRect[], eargs: Omit<EntityRecArgs, 'isSel'>, levelsLen: number) {
-
     const size: Vec2 = { x: baseMap.mapWidth, y: baseMap.mapHeight }
 
     let tmp: number
@@ -297,13 +323,14 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
     /* search for base light layer */
     let lightLayer: sc.MapModel.MapLayer | undefined = undefined
     tmp = 0
-    baseMap.layer.forEach((layer) => {
-        if (layer.type == 'Light') { 
+    baseMap.layer.forEach(layer => {
+        if (layer.type == 'Light') {
             assertBool(tmp == 0, 'Map cannot have two light layers')
-            lightLayer = layer; tmp++
+            lightLayer = layer
+            tmp++
         }
     })
-    if (! lightLayer) {
+    if (!lightLayer) {
         lightLayer = new MapLayer(size.x, size.y, 'Light', 'Light', 'media/map/lightmap-tiles.png', 'light', -2).fill(0)
     }
 
@@ -311,7 +338,7 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
     let lightLayerSel: sc.MapModel.MapLayer | undefined = undefined
     tmp = 0
     for (const layer of baseMap.layer) {
-        if (layer.type == 'Light') { 
+        if (layer.type == 'Light') {
             assertBool(tmp == 0, 'Map cannot have two light layers')
             lightLayerSel = layer
             tmp++
@@ -329,7 +356,7 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
     lightLayer.width = size.x
     lightLayer.height = size.y
     lightLayer.level = 'light' /* maybe 'last' insted of 'light'? */
-    
+
     /* generate all collision tiles to keep the master level from ruining my day */
     processCollisionLayers(baseMap)
     processCollisionLayers(selMap)
@@ -341,7 +368,9 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
 
     /* get base collision layers */
     for (const layer of baseMap.layer as (sc.MapModel.MapLayer & { isBase?: boolean })[]) {
-        if (layer.type != 'Collision') { continue }
+        if (layer.type != 'Collision') {
+            continue
+        }
         let level = eargs.lvlChangeMap[parseInt(layer.level.toString())]
         layer.level = level
         layer.tilesetName = 'media/map/collisiontiles-16x16.png'
@@ -358,12 +387,14 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
             }
         }
         for (const layer of selMap.layer) {
-            if (layer.type != 'Collision') { continue }
+            if (layer.type != 'Collision') {
+                continue
+            }
             let level: number = eargs.lvlChangeMap[parseInt(layer.level.toString()) + eargs.levelOffset]
             let layer1 = collisionLayers[level]
 
             let subArray = createSubArr2d(layer.data, x1, y1, x2, y2, x3, y3, size)
-            
+
             mergeArrays2d(layer1.data, subArray)
         }
     }
@@ -372,9 +403,11 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
     const tileLayersClear: boolean[] = []
     /* get base tile layers */
     for (const layer of baseMap.layer as (sc.MapModel.MapLayer & { isBase?: boolean })[]) {
-        if (layer.type != 'Background' || (typeof layer.level === 'string' && layer.level.startsWith('object'))) { continue }
+        if (layer.type != 'Background' || (typeof layer.level === 'string' && layer.level.startsWith('object'))) {
+            continue
+        }
         const level: number = eargs.lvlChangeMap[parseInt(layer.level.toString())]
-        if (! (level in tileLayers)) {
+        if (!(level in tileLayers)) {
             tileLayers[level] = []
         }
         layer.level = level
@@ -384,11 +417,13 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
     }
     /* add sel layers */
     for (const layer of selMap.layer as (sc.MapModel.MapLayer & { isBase?: boolean })[]) {
-        if (layer.type != 'Background' || (typeof layer.level === 'string' && layer.level.startsWith('object'))) { continue }
+        if (layer.type != 'Background' || (typeof layer.level === 'string' && layer.level.startsWith('object'))) {
+            continue
+        }
 
         const level: number = eargs.lvlChangeMap[parseInt(layer.level.toString()) + eargs.levelOffset]
 
-        if (! (level in tileLayers)) {
+        if (!(level in tileLayers)) {
             tileLayers[level] = []
         }
         let rectLayer: sc.MapModel.MapLayer | undefined
@@ -411,7 +446,7 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
                     layer.width = size.x
                     layer.height = size.y
                     layer.level = level
-                    layer.name = (eargs.uniqueId ? (eargs.uniqueId + '_') : '') + layer.name
+                    layer.name = (eargs.uniqueId ? eargs.uniqueId + '_' : '') + layer.name
                     tileLayers[level].push(layer)
                     rectLayer = layer
                 }
@@ -419,20 +454,22 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
         }
     }
 
-
     /* handle special object layers */
     const objectLayers: sc.MapModel.MapLayer[] = []
     /* get base object layers */
     for (const layer of baseMap.layer) {
         const level = layer.level
-        if (! (layer.type == 'Background' && typeof level === 'string' && level.startsWith('object'))) { continue }
+        if (!(layer.type == 'Background' && typeof level === 'string' && level.startsWith('object'))) {
+            continue
+        }
         objectLayers.push(layer)
     }
     /* merge base layers with sel layers */
     for (const layer of selMap.layer) {
         let level = layer.level
-        if (! (layer.type == 'Background' && typeof level === 'string' &&
-             level.startsWith('object'))) { continue }
+        if (!(layer.type == 'Background' && typeof level === 'string' && level.startsWith('object'))) {
+            continue
+        }
 
         let rectLayer: sc.MapModel.MapLayer | undefined
 
@@ -457,14 +494,16 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
 
     /* copy nav layers */
     const navLayers: sc.MapModel.MapLayer[] = []
-    
+
     for (let i = 0; i < levelsLen; i++) {
         navLayers[i] = new MapLayer(size.x, size.y, `Navigation ${i}`, 'Navigation', 'media/map/pathmap-tiles.png', i, -4).fill(0)
     }
 
     /* get base nav layers */
     for (const layer of baseMap.layer as (sc.MapModel.MapLayer & { isBase: boolean })[]) {
-        if (! (layer.type == 'Navigation')) { continue }
+        if (!(layer.type == 'Navigation')) {
+            continue
+        }
         const level: number = eargs.lvlChangeMap[parseInt(layer.level.toString())]
         layer.level = level
         layer.tilesetName = 'media/map/pathmap-tiles.png'
@@ -480,7 +519,9 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
             }
         }
         for (const layer of selMap.layer as (sc.MapModel.MapLayer & { isBase: boolean })[]) {
-            if (! (layer.type == 'Navigation')) { continue }
+            if (!(layer.type == 'Navigation')) {
+                continue
+            }
 
             const level: number = eargs.lvlChangeMap[parseInt(layer.level.toString()) + eargs.levelOffset]
             const layer1 = navLayers[level]
@@ -489,7 +530,7 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
             mergeArrays2d(layer1.data, subArray)
         }
     }
-    
+
     return {
         lightLayer,
         collisionLayers,
@@ -508,9 +549,15 @@ export interface MapCopyOptions {
     makePuzzlesUnique?: boolean
 }
 
-export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects1: bareRect[],
-    eargs1: EntityRecArgsIn, newName: string, options: MapCopyOptions): sc.MapModel.Map {
-    if (! options.uniqueId) {
+export function copyMapRectsToMap(
+    baseMap: sc.MapModel.Map,
+    selMap: sc.MapModel.Map,
+    rects1: bareRect[],
+    eargs1: EntityRecArgsIn,
+    newName: string,
+    options: MapCopyOptions
+): sc.MapModel.Map {
+    if (!options.uniqueId) {
         options.uniqueId = generateUniqueId()
     }
 
@@ -534,9 +581,9 @@ export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.
     // }
     const rects: MapRect[] = rects1.map(r => Rect.new(MapRect, r))
     const { lightLayer, collisionLayers, tileLayers, objectLayers, navLayers, size } = mergeMapLayers(baseMap, selMap, rects, eargs, levels.length)
-    
+
     let entities: sc.MapModel.MapEntity[] = []
-    if (! options.disableEntities) {
+    if (!options.disableEntities) {
         entities = mergeMapEntities(baseMap.entities, selMap.entities, rects, eargs)
     }
 
@@ -549,14 +596,12 @@ export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.
     const speedInc: number = 5e-10
     for (const levelLayers of tileLayers) {
         for (const layer of levelLayers) {
-            if (! layer.moveSpeed) {
+            if (!layer.moveSpeed) {
                 layer.moveSpeed = { x: 0, y: 0 }
             }
             if (id > 0 && lastLayerDistance != layer.distance) {
                 layer.moveSpeed.x += speedInc
-                if (layer.moveSpeed.x == lastLayerSpeed.x &&
-                    layer.moveSpeed.y == lastLayerSpeed.y) {
-
+                if (layer.moveSpeed.x == lastLayerSpeed.x && layer.moveSpeed.y == lastLayerSpeed.y) {
                     layer.moveSpeed.x += speedInc
                 }
             }
@@ -569,7 +614,7 @@ export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.
 
     /* fill down the water from layers higher
        this makes kill pits work */
-    for (let i = collisionLayers.length - 1 ; i >= 1; i--) {
+    for (let i = collisionLayers.length - 1; i >= 1; i--) {
         const l1: sc.MapModel.MapLayer = collisionLayers[i]
         const l2: sc.MapModel.MapLayer = collisionLayers[i - 1]
         for (let y = 0; y < l1.data.length; y++) {
@@ -578,7 +623,7 @@ export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.
                 const l1nv = l1.data[y][x]
                 const l2nv = l2.data[y][x]
 
-                const l1IsWater = (l1nv == 1 || (l1nv >= 3 && l1nv <= 6) || (l1nv >= 15 && l1nv <= 18) || (l1nv >= 23 && l1nv <= 24))
+                const l1IsWater = l1nv == 1 || (l1nv >= 3 && l1nv <= 6) || (l1nv >= 15 && l1nv <= 18) || (l1nv >= 23 && l1nv <= 24)
 
                 if (l1IsWater && l2nv == 0) {
                     l2.data[y][x] = l1nv
@@ -614,7 +659,7 @@ export function copyMapRectsToMap(baseMap: sc.MapModel.Map, selMap: sc.MapModel.
         /* screen is not used? setting just to be safe */
         screen: { x: 0, y: 0 },
         entities,
-        layer: allLayers
+        layer: allLayers,
     }
 
     console.log(map)

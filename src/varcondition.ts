@@ -7,7 +7,7 @@ var e = /^(!=|==|<=|>=|<|>|=|\+|-|%|\/|\*|AND|OR|&&|\|\|)/,
     i = /^([\w/.-]|\[|\])+/
 
 export class VarExtractor {
-    static parse(source: string): { formatted: string, vars: string[] }{
+    static parse(source: string): { formatted: string; vars: string[] } {
         return new VarExtractor().parse(source)
     }
     source!: string
@@ -16,8 +16,8 @@ export class VarExtractor {
     searchedIndex: number = 0
     tokenType: number = 0
     tokenValue?: string
-    
-    parse(source: string): { formatted: string, vars: string[] }{
+
+    parse(source: string): { formatted: string; vars: string[] } {
         this.source = source
         this.index = 0
         const formatted: string = this.parseExpression()
@@ -29,7 +29,7 @@ export class VarExtractor {
         if (this.tokenType == 0 || this.tokenType == 2) return a!
         if (this.tokenType == 8) {
             this.stepToken()
-            return a + " " + this.tokenValue + " " + this.parseExpression()
+            return a + ' ' + this.tokenValue + ' ' + this.parseExpression()
         }
         throw Error("Unexpected token '" + this.tokenValue + "' when parsing expression")
     }
@@ -42,9 +42,9 @@ export class VarExtractor {
             this.checkToken()
             if (this.tokenType !== 2) throw Error("Didn't close an open paranthesis! Bad!!")
             this.stepToken()
-            return "(" + a + ")"
+            return '(' + a + ')'
         }
-        if (this.tokenType == 7) return "!" + this.parseTerminalExpression()
+        if (this.tokenType == 7) return '!' + this.parseTerminalExpression()
         if (this.tokenType == 4 || this.tokenType == 6 || this.tokenType == 5) return this.tokenValue
         if (this.tokenType == 3) {
             this.vars.push(this.tokenValue!)
@@ -53,21 +53,21 @@ export class VarExtractor {
         throw Error("Unsupported Token: '" + this.tokenValue + "' during terminal expression parsing")
     }
     private checkToken(a?: boolean) {
-        for (var b = this.index, c = this.source; c[b] == " "; ) b++
+        for (var b = this.index, c = this.source; c[b] == ' '; ) b++
         if (b >= c.length) {
             this.tokenType = 0
             this.tokenValue = undefined
-        } else if (c[b] == "(") {
+        } else if (c[b] == '(') {
             this.tokenType = 1
-            this.tokenValue = "("
+            this.tokenValue = '('
             b++
-        } else if (c[b] == ")") {
+        } else if (c[b] == ')') {
             this.tokenType = 2
-            this.tokenValue = ")"
+            this.tokenValue = ')'
             b++
-        } else if (c[b] == "!" && c[b + 1] != "=") {
+        } else if (c[b] == '!' && c[b + 1] != '=') {
             this.tokenType = 7
-            this.tokenValue = "!"
+            this.tokenValue = '!'
             b++
         } else {
             var c = c.substring(b),
@@ -76,7 +76,7 @@ export class VarExtractor {
                 d = d[0]
                 b = b + d.length
                 this.tokenType = 8
-                d == "AND" ? (d = "&&") : d == "OR" ? (d = "||") : d == "=" && (d = "==")
+                d == 'AND' ? (d = '&&') : d == 'OR' ? (d = '||') : d == '=' && (d = '==')
                 this.tokenValue = d
             } else if ((d = c.match(f))) {
                 d = d[0]

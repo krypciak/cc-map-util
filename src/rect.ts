@@ -11,7 +11,7 @@ export class Rect {
         public x: number,
         public y: number,
         public width: number,
-        public height: number,
+        public height: number
     ) {
         if (width < 0) {
             throw new Error('Width cannot be less than 0')
@@ -31,10 +31,18 @@ export class Rect {
     getSide(dir: Dir, smallerSize: number = 0.5): Rect {
         let pos: Point
         switch (dir) {
-            case Dir.NORTH: pos = new Point(this.x, this.y); break
-            case Dir.EAST: pos = new Point(this.x2(), this.y); break
-            case Dir.SOUTH: pos = new Point(this.x, this.y2()); break
-            case Dir.WEST: pos = new Point(this.x, this.y); break
+            case Dir.NORTH:
+                pos = new Point(this.x, this.y)
+                break
+            case Dir.EAST:
+                pos = new Point(this.x2(), this.y)
+                break
+            case Dir.SOUTH:
+                pos = new Point(this.x, this.y2())
+                break
+            case Dir.WEST:
+                pos = new Point(this.x, this.y)
+                break
         }
         const size: Point = DirUtil.isVertical(dir) ? new Point(this.width, smallerSize) : new Point(smallerSize, this.height)
         return Rect.fromTwoPoints(pos, size)
@@ -42,14 +50,22 @@ export class Rect {
 
     setPosToSide(pos: Point, dir: Dir) {
         switch (dir) {
-            case Dir.NORTH: pos.y = this.y; break
-            case Dir.EAST: pos.x = this.x2(); break
-            case Dir.SOUTH: pos.y = this.y2(); break
-            case Dir.WEST: pos.x = this.x; break
+            case Dir.NORTH:
+                pos.y = this.y
+                break
+            case Dir.EAST:
+                pos.x = this.x2()
+                break
+            case Dir.SOUTH:
+                pos.y = this.y2()
+                break
+            case Dir.WEST:
+                pos.x = this.x
+                break
         }
     }
 
-    setToClosestRectSide(pos: Vec2): { distance: number, dir: Dir, pos: Vec2 }  {
+    setToClosestRectSide(pos: Vec2): { distance: number; dir: Dir; pos: Vec2 } {
         let smallestDist: number = 10000
         let smallestDir: Dir = Dir.NORTH
         let smallestPos: Vec2 = new Point(0, 0)
@@ -73,37 +89,41 @@ export class Rect {
     }
 
     middlePoint<T extends Point>(type: new (x: number, y: number) => T): T {
-        return new type(this.x + this.width/2, this.y + this.height/2)
+        return new type(this.x + this.width / 2, this.y + this.height / 2)
     }
 
     extend(num: number) {
         this.x -= num
         this.y -= num
-        this.width += num*2
-        this.height += num*2
+        this.width += num * 2
+        this.height += num * 2
     }
 
     to<T extends typeof Rect>(ins: T): InstanceType<T> {
-        const multi = ins.multiplier / 
+        const multi =
+            ins.multiplier /
             // @ts-expect-error
             this.constructor['multiplier']
 
-        return new ins(
-            this.x * multi,
-            this.y * multi,
-            this.width * multi,
-            this.height * multi,
-        ) as InstanceType<T>
+        return new ins(this.x * multi, this.y * multi, this.width * multi, this.height * multi) as InstanceType<T>
     }
 
     static getMinMaxPosFromRectArr(rects: Rect[]): { min: Point; max: Point } {
         const min: AreaPoint = new AreaPoint(100000, 100000)
         const max: AreaPoint = new AreaPoint(-100000, -100000)
         for (const rect of rects) {
-            if (rect.x < min.x) { min.x = rect.x }
-            if (rect.y < min.y) { min.y = rect.y }
-            if (rect.x2() > max.x) { max.x = rect.x2() }
-            if (rect.y2() > max.y) { max.y = rect.y2() }
+            if (rect.x < min.x) {
+                min.x = rect.x
+            }
+            if (rect.y < min.y) {
+                min.y = rect.y
+            }
+            if (rect.x2() > max.x) {
+                max.x = rect.x2()
+            }
+            if (rect.y2() > max.y) {
+                max.y = rect.y2()
+            }
         }
         return { min, max }
     }
@@ -113,7 +133,7 @@ export class Rect {
             x: this.x,
             y: this.y,
             width: this.width,
-            height: this.height
+            height: this.height,
         }
     }
 
@@ -121,8 +141,7 @@ export class Rect {
         return new Rect(pos.x, pos.y, size.x, size.y)
     }
 
-    static new<T extends Rect>
-        (init: new (x: number, y: number, width: number, height: number) => T, rect: bareRect): T {
+    static new<T extends Rect>(init: new (x: number, y: number, width: number, height: number) => T, rect: bareRect): T {
         return new init(rect.x, rect.y, rect.width, rect.height)
     }
 }
@@ -142,7 +161,7 @@ export class EntityRect extends Rect {
 export class MapRect extends Rect {
     static multiplier: number = 4
     _maprect: boolean = true /* set so you cant assign different types to each other */
-    
+
     static fromxy2(x: number, y: number, x2: number, y2: number): MapRect {
         return new MapRect(x, y, x2 - x, y2 - y)
     }
@@ -165,12 +184,7 @@ export class AreaRect extends Rect {
 }
 
 export function doRectsOverlap<T extends Rect>(rect1: T, rect2: T): boolean {
-    return (
-        rect1.x < rect2.x2() &&
-        rect1.x2() > rect2.x &&
-        rect1.y < rect2.y2() &&
-        rect1.y2() > rect2.y
-    )
+    return rect1.x < rect2.x2() && rect1.x2() > rect2.x && rect1.y < rect2.y2() && rect1.y2() > rect2.y
 }
 
 export function doesRectArrayOverlapRectArray<T extends Rect>(arr1: T[], arr2: T[]): boolean {
@@ -185,12 +199,13 @@ export function doesRectArrayOverlapRectArray<T extends Rect>(arr1: T[], arr2: T
 }
 
 export function isVecInRect(vec: Vec2, rect: bareRect) {
-    return (vec.x >= rect.x && vec.x < (rect.x + rect.width) &&
-            vec.y >= rect.y && vec.y < (rect.y + rect.height))
+    return vec.x >= rect.x && vec.x < rect.x + rect.width && vec.y >= rect.y && vec.y < rect.y + rect.height
 }
 export function isVecInRectArr(vec: Vec2, arr: bareRect[]) {
     for (const rect of arr) {
-        if (isVecInRect(vec, rect)) { return true }
+        if (isVecInRect(vec, rect)) {
+            return true
+        }
     }
     return false
 }
@@ -229,7 +244,9 @@ export function reduceRectArr(rects: bareRect[]) {
             if (map[y][x] == 1) {
                 let maxX = x
                 for (let x1 = x; x1 < size.x; x1++) {
-                    if (map[y][x1] == 0) { break }
+                    if (map[y][x1] == 0) {
+                        break
+                    }
                     maxX = x1
                     map[y][x1] = 0
                 }
@@ -237,7 +254,7 @@ export function reduceRectArr(rects: bareRect[]) {
                 maxX += 1
 
                 let maxY = y
-                for (let y1 = y+1; y1 < size.y; y1++) {
+                for (let y1 = y + 1; y1 < size.y; y1++) {
                     let ok = true
                     for (let x1 = x; x1 < maxX; x1++) {
                         if (map[y1][x1] == 0) {
@@ -247,7 +264,9 @@ export function reduceRectArr(rects: bareRect[]) {
                     }
                     if (ok) {
                         maxY = y1
-                    } else { break }
+                    } else {
+                        break
+                    }
                 }
 
                 maxY += 1
@@ -265,10 +284,9 @@ export function reduceRectArr(rects: bareRect[]) {
 
     return {
         rects: newRects,
-        rectSize: MapRect.fromTwoPoints(min as MapPoint, max as MapPoint)
+        rectSize: MapRect.fromTwoPoints(min as MapPoint, max as MapPoint),
     }
 }
-
 
 export function fillFromToArr2d<T>(arr: T[][], value: T, x1: number, y1: number, x2: number, y2: number) {
     const iteX = Math.min(x2, arr[0].length)
@@ -290,11 +308,11 @@ export function createSubArr2d(arr: any[][], x1: number, y1: number, x2: number,
     y2 = Math.min(arrHeight, y2)
 
     // make sure cords are in bounds with baseMap
-    let xTmp = (x2 - x1 + 1) - (size.x - offsetX)
+    let xTmp = x2 - x1 + 1 - (size.x - offsetX)
     if (xTmp > 0) {
         x2 -= xTmp
     }
-    let yTmp = (y2 - y1 + 1) - (size.y - offsetY)
+    let yTmp = y2 - y1 + 1 - (size.y - offsetY)
     if (yTmp > 0) {
         y2 -= yTmp
     }
@@ -303,10 +321,9 @@ export function createSubArr2d(arr: any[][], x1: number, y1: number, x2: number,
     y1 = Math.min(arrHeight, Math.max(y1, 0))
     x2 = Math.min(arrWidth, Math.max(x2, 0))
     y2 = Math.min(arrHeight, Math.max(y2, 0))
-    
-    if (x2 < x1 || y2 < y1)
-        throw new Error('invalid createSubArray inputs')
-    
+
+    if (x2 < x1 || y2 < y1) throw new Error('invalid createSubArray inputs')
+
     for (let y = y1; y < y2; y++) {
         for (let x = x1; x < x2; x++) {
             let nArrX = x - x1 + offsetX
@@ -337,13 +354,11 @@ export function parseArrAt2d<T>(arr1: T[][], arr2: T[][], x1: number, y1: number
 export function isArrEmpty2d<T>(arr: T[][]) {
     for (let y = 0; y < arr.length; y++) {
         for (let x = 0; x < arr[y].length; x++) {
-            if (arr[y][x] != 0)
-                return false
+            if (arr[y][x] != 0) return false
         }
     }
     return true
 }
-
 
 export function generateUniqueId() {
     return Math.floor(Math.random() * 10000000)

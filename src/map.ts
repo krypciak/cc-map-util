@@ -1,4 +1,4 @@
-import { emptyArr2d } from "./rect"
+import { emptyArr2d } from './rect'
 
 const tilesize: number = 16
 
@@ -8,8 +8,13 @@ export enum Coll {
     Wall = 2,
     Floor = 3,
 }
-export type Tileset = 'media/map/collisiontiles-16x16.png' | 'media/map/pathmap-tiles.png' | 'media/map/lightmap-tiles.png'
-                    | 'media/map/dungeon-shadow.png' | 'media/map/cold-dng.png' | 'media/map/rhombus-dungeon2.png'
+export type Tileset =
+    | 'media/map/collisiontiles-16x16.png'
+    | 'media/map/pathmap-tiles.png'
+    | 'media/map/lightmap-tiles.png'
+    | 'media/map/dungeon-shadow.png'
+    | 'media/map/cold-dng.png'
+    | 'media/map/rhombus-dungeon2.png'
 
 export class MapLayer implements sc.MapModel.MapLayer {
     visible: number = 1
@@ -21,10 +26,16 @@ export class MapLayer implements sc.MapModel.MapLayer {
     data: number[][]
     lighter: boolean = false
 
-    constructor(public width: number, public height: number, public name: string,
-        public type: sc.MapModel.MapLayerType, public tilesetName: string, 
-        public level: sc.MapModel.MapLayerLevelType, public id: number, data?: number[][]) {
-
+    constructor(
+        public width: number,
+        public height: number,
+        public name: string,
+        public type: sc.MapModel.MapLayerType,
+        public tilesetName: string,
+        public level: sc.MapModel.MapLayerLevelType,
+        public id: number,
+        data?: number[][]
+    ) {
         this.data = data ?? []
     }
 
@@ -33,17 +44,19 @@ export class MapLayer implements sc.MapModel.MapLayer {
         return this
     }
 
-    toJSON() { return this as sc.MapModel.MapLayer }
+    toJSON() {
+        return this as sc.MapModel.MapLayer
+    }
 
     static convertArray(arr: sc.MapModel.MapLayer[]): MapLayer[] {
-        return arr.map((layer) => new MapLayer(layer.width, layer.height, layer.name, layer.type, layer.tilesetName, layer.level, layer.id, layer.data))
+        return arr.map(layer => new MapLayer(layer.width, layer.height, layer.name, layer.type, layer.tilesetName, layer.level, layer.id, layer.data))
     }
 }
 
 const mapNameToMapDisplayName: Map<string, string> = new Map<string, string>()
 
 export async function getMapDisplayName(map: sc.MapModel.Map): Promise<string> {
-    return new Promise<string>(async (resolve) => {
+    return new Promise<string>(async resolve => {
         const mapName = map.name.split('.').join('/')
         if (mapNameToMapDisplayName.has(mapName)) {
             resolve(mapNameToMapDisplayName.get(mapName) ?? 'maploadingerror')
@@ -63,7 +76,7 @@ export async function getMapDisplayName(map: sc.MapModel.Map): Promise<string> {
 }
 
 export async function loadArea(areaName: string): Promise<sc.AreaLoadable> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
         const area: sc.AreaLoadable = new sc.AreaLoadable(areaName)
         area.load(() => {
             resolve(area)
