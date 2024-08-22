@@ -290,7 +290,7 @@ function processCollisionLayers(map: sc.MapModel.Map) {
         })
     for (let i = 0; i < map.levels.length; i++) {
         if (!collisionLayers[i]) {
-            collisionLayers[i] = new MapLayer(width, height, `Collision ${i}`, 'Collision', 'media/map/collisiontiles-16x16.png', i, -1)
+            collisionLayers[i] = new MapLayer(width, height, `Collision ${i}`, 'Collision', 'media/map/collisiontiles-16x16.png', i, -1).fill(0)
         }
     }
 
