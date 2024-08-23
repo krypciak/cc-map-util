@@ -226,7 +226,7 @@ function stolenProcessCollisionLayers(collisions: sc.MapModel.MapLayer[], master
         tmpLayer = masterLayer
     }
 
-    for (let i = masterLevel + 1; i < maxLevel; i++) {
+    for (let i = masterLevel + 1; i < maxLevel + 1; i++) {
         stolenProcessCollisionLayer(collisions[i], tmpLayer, tmpLayer ? (heights[i].height - heights[i - 1].height) / 16 : 0)
         tmpLayer = collisions[i]
     }
@@ -296,11 +296,13 @@ function processCollisionLayers(map: sc.MapModel.Map) {
 
     stolenProcessCollisionLayers(collisionLayers, map.masterLevel, map.levels)
 
-    /* for (let i = 0; i < map.layer.length; i++) {
-        const layer: sc.MapModel.MapLayer = map.layer[i]
-        if (layer.type != 'Collision') { continue }
-        map.layer[i] = collisionLayers[layer.level]
-    } */
+    // for (let i = 0; i < map.layer.length; i++) {
+    //     const layer: sc.MapModel.MapLayer = map.layer[i]
+    //     if (layer.type != 'Collision') {
+    //         continue
+    //     }
+    //     map.layer[i] = collisionLayers[layer.level as number]
+    // }
 }
 
 function getMapLayerCords(rect: MapRect, offset: MapPoint, selSize: MapPoint) {
