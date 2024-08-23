@@ -646,7 +646,6 @@ export function copyMapRectsToMap(
         allLayers.push(layer)
     }
     if (lightLayer) {
-        console.log('light layer found')
         lightLayer.id = id++
         allLayers.push(lightLayer)
     }
@@ -664,6 +663,5 @@ export function copyMapRectsToMap(
         layer: allLayers,
     }
 
-    console.log(map)
     return map
 }
