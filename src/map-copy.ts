@@ -321,7 +321,7 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
     let tmp: number
 
     /* search for base light layer */
-    let lightLayer: sc.MapModel.MapLayer | undefined = undefined
+    let lightLayer: sc.MapModel.MapLayer | undefined
     tmp = 0
     baseMap.layer.forEach(layer => {
         if (layer.type == 'Light') {
@@ -330,14 +330,15 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
             tmp++
         }
     })
+
     if (!lightLayer) {
         lightLayer = new MapLayer(size.x, size.y, 'Light', 'Light', 'media/map/lightmap-tiles.png', 'light', -2).fill(0)
     }
 
     /* search for sel light layer */
-    let lightLayerSel: sc.MapModel.MapLayer | undefined = undefined
+    let lightLayerSel: sc.MapModel.MapLayer | undefined
     tmp = 0
-    for (const layer of baseMap.layer) {
+    for (const layer of selMap.layer) {
         if (layer.type == 'Light') {
             assertBool(tmp == 0, 'Map cannot have two light layers')
             lightLayerSel = layer
@@ -645,6 +646,7 @@ export function copyMapRectsToMap(
         allLayers.push(layer)
     }
     if (lightLayer) {
+        console.log('light layer found')
         lightLayer.id = id++
         allLayers.push(lightLayer)
     }
