@@ -418,6 +418,7 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
         tileLayersClear[level] = true
         tileLayers[level].push(layer)
     }
+
     /* add sel layers */
     for (const layer of selMap.layer as (sc.MapModel.MapLayer & { isBase?: boolean })[]) {
         if (layer.type != 'Background' || (typeof layer.level === 'string' && layer.level.startsWith('object'))) {
@@ -445,13 +446,16 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
                 if (rectLayer) {
                     mergeArrays2d(rectLayer.data, subArray)
                 } else {
-                    layer.data = subArray
-                    layer.width = size.x
-                    layer.height = size.y
-                    layer.level = level
-                    layer.name = (eargs.uniqueId ? eargs.uniqueId + '_' : '') + layer.name
-                    tileLayers[level].push(layer)
-                    rectLayer = layer
+                    const newLayer = {
+                        ...layer,
+                        data: subArray,
+                        width: size.x,
+                        height: size.y,
+                        level: level,
+                        name: (eargs.uniqueId ? eargs.uniqueId + '_' : '') + layer.name,
+                    }
+                    tileLayers[level].push(newLayer)
+                    rectLayer = newLayer
                 }
             }
         }
@@ -582,7 +586,9 @@ export function copyMapRectsToMap(
     //         poslvl.level = oldToNewLevelsMap[parseInt(poslvl.level) + selLevelOffset]
     //     }
     // }
+
     const rects: MapRect[] = rects1.map(r => Rect.new(MapRect, r))
+
     const { lightLayer, collisionLayers, tileLayers, objectLayers, navLayers, size } = mergeMapLayers(baseMap, selMap, rects, eargs, levels.length)
 
     let entities: sc.MapModel.MapEntity[] = []
