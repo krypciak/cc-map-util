@@ -1,6 +1,6 @@
 import { EntityPoint, MapPoint } from './pos'
 import { MapLayer } from './map'
-import { bareRect, fillFromToArr2d, isVecInRect, createSubArr2d, mergeArrays2d, isArrEmpty2d, generateUniqueId, MapRect, Rect, EntityRect } from './rect'
+import { bareRect, fillFromToArr2d, isVecInRect, createSubArr2d, mergeArrays2d, isArrEmpty2d, MapRect, Rect, EntityRect } from './rect'
 import { assertBool, executeRecursiveAction } from './util'
 import { VarExtractor } from './varcondition'
 
@@ -549,11 +549,8 @@ function mergeMapLayers(baseMap: sc.MapModel.Map, selMap: sc.MapModel.Map, rects
 }
 
 export interface MapCopyOptions {
-    uniqueId?: number
-    uniqueSel?: Selection
+    // uniqueId?: number
     disableEntities?: boolean
-    // removeCutscenes?: boolean
-    makePuzzlesUnique?: boolean
 }
 
 export function copyMapRectsToMap(
@@ -564,10 +561,6 @@ export function copyMapRectsToMap(
     newName: string,
     options: MapCopyOptions
 ): { map: sc.MapModel.Map; levelOffset: number; lvlChangeMap: number[] } {
-    if (!options.uniqueId) {
-        options.uniqueId = generateUniqueId()
-    }
-
     const eargs: EntityRecArgs = eargs1 as EntityRecArgs
     eargs.eoffset = eargs.offset.to(EntityPoint)
     eargs.selSizeERect = eargs.selSizeRect.to(EntityPoint)
@@ -575,17 +568,6 @@ export function copyMapRectsToMap(
     eargs.lvlChangeMap = lvlChangeMap
     eargs.levelOffset = levelOffset
     eargs.selMasterZ = selMasterZ
-
-    // if (options.uniqueSel) {
-    //     let uniqueSel = options.uniqueSel
-    //     const zDiff = uniqueSel.data.startPos.z - lvlChangeMap[parseInt(uniqueSel.data.startPos.level) + selLevelOffset]
-
-    //     for (const poslvl of [uniqueSel.data.startPos, uniqueSel.data.endPos]) {
-    //         poslvl.z -= zDiff
-    //         poslvl.y += zDiff
-    //         poslvl.level = oldToNewLevelsMap[parseInt(poslvl.level) + selLevelOffset]
-    //     }
-    // }
 
     const rects: MapRect[] = rects1.map(r => Rect.new(MapRect, r))
 
