@@ -168,13 +168,13 @@ function mergeMapEntities(entities: sc.MapModel.MapEntity[], selEntities: sc.Map
 
     let entityMapId: number = 0
 
-    entities.forEach(entity => {
+    for (const entity of entities) {
         const eargs1: Partial<EntityRecArgs> = { ...eargs } as EntityRecArgs
         eargs1.isSel = false
         eargs1.selMasterZ = undefined
         executeRecursiveAction(entity, changeEntityRecursive, eargs1)
         entityMapId = Math.max(entityMapId, entity.settings?.mapId ?? -1)
-    })
+    }
 
     /* add all EventTriggers */
     if (eargs.selectAllEventTriggers) {
@@ -192,22 +192,23 @@ function mergeMapEntities(entities: sc.MapModel.MapEntity[], selEntities: sc.Map
         const erect: EntityRect = rect.to(EntityRect)
         for (const e of selEntities) {
             const pos: EntityPoint = EntityPoint.fromVec(e)
-            if (isVecInRect(pos, erect)) {
-                const eoffset: EntityPoint = getOffsetEntityPos(erect, pos, eargs.eoffset, eargs.selSizeERect, eargs.selMasterZ)
-                const eargs1: EntityRecArgs = { ...eargs } as EntityRecArgs
-                eargs1.isSel = true
-                eargs1.repositionRect = rect
-                eargs1.repositionERect = rect.to(EntityRect)
-                executeRecursiveAction(e, changeEntityRecursive, eargs1)
+            if (!isVecInRect(pos, erect)) continue
 
-                e.settings ??= {}
-                e.settings.oldPos = Vec2.create(e)
-                Vec2.assign(e, eoffset)
-                if (e.settings && e.type != 'Destructible') {
-                    e.settings.mapId = entityMapId++
-                }
-                entities.push(e)
+            const eoffset: EntityPoint = getOffsetEntityPos(erect, pos, eargs.eoffset, eargs.selSizeERect, eargs.selMasterZ)
+            const eargs1: EntityRecArgs = { ...eargs } as EntityRecArgs
+            eargs1.isSel = true
+            eargs1.repositionRect = rect
+            eargs1.repositionERect = rect.to(EntityRect)
+            executeRecursiveAction(e, changeEntityRecursive, eargs1)
+
+            const ne = { ...e, settings: { ...e.settings } }
+            ne.settings ??= {}
+            ne.settings.oldPos = Vec2.create(ne)
+            Vec2.assign(ne, eoffset)
+            if (ne.settings && ne.type != 'Destructible') {
+                ne.settings.mapId = entityMapId++
             }
+            entities.push(ne)
         }
     }
     return entities
