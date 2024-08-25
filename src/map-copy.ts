@@ -563,7 +563,7 @@ export function copyMapRectsToMap(
     eargs1: EntityRecArgsIn,
     newName: string,
     options: MapCopyOptions
-): sc.MapModel.Map {
+): { map: sc.MapModel.Map; levelOffset: number; lvlChangeMap: number[] } {
     if (!options.uniqueId) {
         options.uniqueId = generateUniqueId()
     }
@@ -671,5 +671,9 @@ export function copyMapRectsToMap(
         layer: allLayers,
     }
 
-    return map
+    return {
+        map,
+        lvlChangeMap,
+        levelOffset,
+    }
 }

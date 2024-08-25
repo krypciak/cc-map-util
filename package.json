@@ -2,22 +2,14 @@
     "name": "cc-map-util",
     "version": "1.0.0",
     "description": "Typescript utility library for CrossCode maps",
-    "main": "lib/index.ts",
-    "types": "lib/index.d.ts",
     "scripts": {
         "start": "tsc",
         "watch": "tsc --watch",
         "format": "prettier ./src -w"
     },
     "repository": "git+https://github.com/krypciak/cc-map-util.git",
-    "keywords": [
-        "crosscode"
-    ],
     "author": "krypek",
     "license": "GPL-3.0-or-later",
-    "bugs": {
-        "url": "https://github.com/krypciak/cc-map-util/issues"
-    },
     "homepage": "https://github.com/krypciak/cc-map-util",
     "devDependencies": {
         "@typescript-eslint/eslint-plugin": "^6.20.0",
