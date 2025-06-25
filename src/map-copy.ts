@@ -173,7 +173,7 @@ function mergeMapEntities(entities: sc.MapModel.MapEntity[], selEntities: sc.Map
         eargs1.isSel = false
         eargs1.selMasterZ = undefined
         executeRecursiveAction(entity, changeEntityRecursive, eargs1)
-        entityMapId = Math.max(entityMapId, entity.settings?.mapId ?? -1)
+        entityMapId = Math.max(entityMapId, (entity.settings as ig.Entity.Settings)?.mapId ?? -1)
     }
 
     /* add all EventTriggers */
@@ -201,14 +201,14 @@ function mergeMapEntities(entities: sc.MapModel.MapEntity[], selEntities: sc.Map
             eargs1.repositionERect = rect.to(EntityRect)
             executeRecursiveAction(e, changeEntityRecursive, eargs1)
 
-            const ne = { ...e, settings: { ...e.settings } }
+            const ne = { ...e, settings: { ...e.settings } as ig.Entity.Settings }
             ne.settings ??= {}
             ne.settings.oldPos = Vec2.create(ne)
             Vec2.assign(ne, eoffset)
             if (ne.settings && ne.type != 'Destructible') {
                 ne.settings.mapId = entityMapId++
             }
-            entities.push(ne)
+            entities.push(ne as any)
         }
     }
     return entities
