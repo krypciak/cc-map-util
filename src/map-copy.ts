@@ -201,7 +201,7 @@ function mergeMapEntities(entities: sc.MapModel.MapEntity[], selEntities: sc.Map
             eargs1.repositionERect = rect.to(EntityRect)
             executeRecursiveAction(e, changeEntityRecursive, eargs1)
 
-            const ne = { ...e, settings: { ...e.settings } as ig.Entity.Settings }
+            const ne = { ...e, settings: { ...e.settings as any } as ig.Entity.Settings }
             ne.settings ??= {}
             ne.settings.oldPos = Vec2.create(ne)
             Vec2.assign(ne, eoffset)
